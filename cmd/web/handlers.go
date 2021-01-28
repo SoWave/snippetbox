@@ -44,7 +44,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 
 // CreateSnippetForm handler renders form with new snippet data
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Create new snippet"))
+	app.render(w, r, "create.page.tmpl", nil)
 }
 
 // Create snippet handler adds snippet with given data.
