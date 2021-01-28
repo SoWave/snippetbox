@@ -4,18 +4,18 @@
 
 {{define "body"}}
     <h2>Latest Snippets</h2>
-    {{if .Snippets}}
+    {{if .Snippets }}
         <table>
             <tr>
                 <th>Title</th>
                 <th>Created</th>
                 <th>ID</th>
             </tr>
-            {{range .Snippets}}
+            {{range .Snippets }}
             <tr>
-                <td><a href='/snippet?id={{.ID}}'>{{.Title}}</a></td>
-                <td>{{.Created}}</td>
-                <td>{{.ID}}</td>
+                <td><a href='/snippet?id={{ .ID }}'>{{ .Title }}</a></td>
+                <td>{{ .Created | humanDate }}</td>
+                <td>{{ .ID }}</td>
             </tr>
             {{end}}
         </table>
