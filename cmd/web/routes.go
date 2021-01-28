@@ -2,6 +2,7 @@ package main
 
 import "net/http"
 
+// Routes defines routes to handlers and static server
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.home)

@@ -8,20 +8,25 @@ import (
 	"github.com/SoWave/snippetbox/pkg/models"
 )
 
+// Contains data used in templates.
 type templateData struct {
 	CurrentYear int
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }
 
+// HumanDate formats time input to readable form.
 func humanDate(t time.Time) string {
 	return t.Format("02 Jan 2006 at 15:04")
 }
 
+// Passes functions to templates.
 var functions = template.FuncMap{
 	"humanDate": humanDate,
 }
 
+// Returns template cache containing assembled templates.
+// Cache is helpful when we don't need new request every time we change template.
 func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 

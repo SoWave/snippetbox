@@ -11,6 +11,7 @@ import (
 	"github.com/lib/pq"
 )
 
+// Home handler "/" renders home page with 10 latest snippets.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		app.notFound(w)
@@ -26,6 +27,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "home.page.tmpl", &templateData{Snippets: s})
 }
 
+// Show snippet handler render show page with info about snippet with {?=id}.
 func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
@@ -45,6 +47,7 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
 }
 
+// Create snippet handler adds snippet with given data.
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
