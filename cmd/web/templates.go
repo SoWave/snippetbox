@@ -5,12 +5,14 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/SoWave/snippetbox/pkg/forms"
 	"github.com/SoWave/snippetbox/pkg/models"
 )
 
 // Contains data used in templates.
 type templateData struct {
 	CurrentYear int
+	Form        *forms.Form
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
 }
