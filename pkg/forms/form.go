@@ -8,8 +8,8 @@ import (
 	"unicode/utf8"
 )
 
-// EmailRX regexp pattern for emails.
-var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9]+.[a-zA-Z]+$")
+// EmailRX regexp pattern for emails. (W3C reccomended)
+var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 // Form is custom struct, which embeds a url.Values object to hold the form data
 // and an Errors field to hold any validation errors from the form data.
