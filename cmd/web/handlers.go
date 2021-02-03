@@ -52,7 +52,7 @@ func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request
 	})
 }
 
-// Create snippet handler adds snippet from form.
+// CreateSnippet handler adds snippet from form.
 func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -87,8 +87,11 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
 
+// SignupUserForm handler that renders signup form page.
 func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display user signup form..")
+	app.render(w, r, "signup.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
