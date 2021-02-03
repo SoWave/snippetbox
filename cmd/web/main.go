@@ -23,6 +23,7 @@ type application struct {
 	session       *sessions.Session
 	snippets      *psql.SnippetModel
 	templateCache map[string]*template.Template
+	users         *psql.UserModel
 }
 
 func main() {
@@ -56,6 +57,7 @@ func main() {
 		session:       session,
 		snippets:      &psql.SnippetModel{DB: db},
 		templateCache: templateCache,
+		users:         &psql.UserModel{DB: db},
 	}
 
 	tlsConfig := &tls.Config{
@@ -64,12 +66,12 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:      *addr,
-		ErrorLog:  errorLog,
-		Handler:   app.routes(),
-		TLSConfig: tlsConfig,
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
