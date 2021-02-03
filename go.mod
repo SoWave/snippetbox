@@ -7,4 +7,5 @@ require (
 	github.com/golangcollege/sessions v1.2.0 // indirect
 	github.com/justinas/alice v1.2.0
 	github.com/lib/pq v1.9.0 // direct
+	golang.org/x/crypto v0.0.0-20200317142112-1b76d66859c6
 )
