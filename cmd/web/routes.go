@@ -9,23 +9,24 @@ import (
 
 // Routes defines routes to handlers and static server
 func (app *application) routes() http.Handler {
-	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
-	dynamicMiddleware := alice.New(app.session.Enable)
+	// Middleware
+	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+	dynamic := alice.New(app.session.Enable)
 
 	mux := pat.New()
-	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
-	mux.Get("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippetForm))
-	mux.Post("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippet))
-	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
+	mux.Get("/", dynamic.ThenFunc(app.home))
+	mux.Get("/snippet/create", dynamic.Append(app.requireAuthenticatedUser).ThenFunc(app.createSnippetForm))
+	mux.Post("/snippet/create", dynamic.Append(app.requireAuthenticatedUser).ThenFunc(app.createSnippet))
+	mux.Get("/snippet/:id", dynamic.ThenFunc(app.showSnippet))
 
-	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
-	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
-	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
-	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
-	mux.Post("/user/logout", dynamicMiddleware.ThenFunc(app.logoutUser))
+	mux.Get("/user/signup", dynamic.ThenFunc(app.signupUserForm))
+	mux.Post("/user/signup", dynamic.ThenFunc(app.signupUser))
+	mux.Get("/user/login", dynamic.ThenFunc(app.loginUserForm))
+	mux.Post("/user/login", dynamic.ThenFunc(app.loginUser))
+	mux.Post("/user/logout", dynamic.Append(app.requireAuthenticatedUser).ThenFunc(app.logoutUser))
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
-	return standardMiddleware.Then(mux)
+	return standard.Then(mux)
 }

@@ -37,3 +37,15 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+// RequireAuthenticatedUser middleware to proceed further if user is logged in. Otherwise redirect to home ("/").
+func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+		if app.authenticatedUser(r) == 0 {
+			http.Redirect(w, r, "/", 302)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
