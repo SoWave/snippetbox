@@ -11,11 +11,12 @@ import (
 
 // Contains data used in templates.
 type templateData struct {
-	CurrentYear int
-	Flash       string
-	Form        *forms.Form
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
+	AuthenticatedUser int
+	CurrentYear       int
+	Flash             string
+	Form              *forms.Form
+	Snippet           *models.Snippet
+	Snippets          []*models.Snippet
 }
 
 // HumanDate formats time input to readable form.
