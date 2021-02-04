@@ -95,6 +95,7 @@ func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
 }
 
 // SignupUser handler creates user with submitted form data. When operation was successful redirects to login page.
+// When operation fails, add appropriate message to the form errors.
 func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -131,14 +132,38 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
+// LoginUserForm renders login page.
 func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "login.page.tmpl", &templateData{
 		Form: forms.New(nil),
 	})
 }
 
+// LoginUser handles login operation. Authenticates data from login form. If succeeded add logged user to session.
+// If authentication fails, add appropriate message to form errors.
 func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Authenticate and login the user...")
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	id, err := app.users.Authenticate(form.Get("email"), form.Get("password"))
+
+	if err == models.ErrInvalidCreditentials {
+		form.Errors.Add("generic", "Your email address or password is incorrect")
+		app.render(w, r, "login.page.tmpl", &templateData{
+			Form: form,
+		})
+		return
+	} else if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.session.Put(r, "userID", id)
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
