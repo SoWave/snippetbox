@@ -166,9 +166,15 @@ func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
+// LogoutUser from current session. Put flash messsage and redirect to home ("/").
 func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, "userID")
 	app.session.Put(r, "flash", "You've been logged out successfully")
 
 	http.Redirect(w, r, "/", 303)
+}
+
+// Ping for status check. Returns 200 OK.
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
 }
