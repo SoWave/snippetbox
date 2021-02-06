@@ -9,7 +9,9 @@
             <strong>{{ .Title }}</strong>
             <span>#{{ .ID }}</span>
         </div>
-        <pre><code>{{ .Content }}</code></pre>
+        <div class='content'>
+            <p>{{ .Content }}</p>
+        </div>
         <div class='metadata'>
             <time>Created: {{ .Created | humanDate }}</time>
             <time>Expires: {{ .Expires | humanDate }}</time>

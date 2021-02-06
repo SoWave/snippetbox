@@ -7,6 +7,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/SoWave/snippetbox/pkg/models"
 	"github.com/justinas/nosurf"
 )
 
@@ -59,7 +60,11 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	buf.WriteTo(w)
 }
 
-// AuthenticatedUser returns ID of currently logged user or zero if no one is logged in.
-func (app *application) authenticatedUser(r *http.Request) int {
-	return app.session.GetInt(r, "userID")
+// AuthenticatedUser returns user information of currently logged user or nil if no one is logged in.
+func (app *application) authenticatedUser(r *http.Request) *models.User {
+	user, ok := r.Context().Value(contextKeyUser).(*models.User)
+	if !ok {
+		return nil
+	}
+	return user
 }

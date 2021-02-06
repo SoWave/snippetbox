@@ -16,6 +16,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// contextKey type defined to prevent collisions with other context keys.
+type contextKey string
+
+// contextKeyUser for user context.
+var contextKeyUser = contextKey("user")
+
 // Application configurration
 type application struct {
 	errorLog      *log.Logger

@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
+	"github.com/SoWave/snippetbox/pkg/models"
 	"github.com/justinas/nosurf"
 )
 
@@ -43,7 +45,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 // RequireAuthenticatedUser middleware to proceed further if user is logged in. Otherwise redirect to home ("/").
 func (app *application) requireAuthenticatedUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.authenticatedUser(r) == 0 {
+		if app.authenticatedUser(r) == nil {
 			http.Redirect(w, r, "/", 302)
 			return
 		}
@@ -63,4 +65,29 @@ func noSurf(next http.Handler) http.Handler {
 	})
 
 	return csrfHandler
+}
+
+// Authenticate that the user exists in session. Then add information about user to the context.
+// If no matched record with session information is found, remove userID from their session.
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+		exists := app.session.Exists(r, "userID")
+		if !exists {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		user, err := app.users.Get(app.session.GetInt(r, "userID"))
+		if err == models.ErrNoRecord {
+			app.session.Remove(r, "userID")
+			next.ServeHTTP(w, r)
+			return
+		} else if err != nil {
+			app.serverError(w, err)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), contextKeyUser, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
