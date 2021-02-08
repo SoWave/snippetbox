@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/SoWave/snippetbox/pkg/models"
 	"github.com/SoWave/snippetbox/pkg/models/psql"
 
 	"github.com/golangcollege/sessions"
@@ -27,9 +28,17 @@ type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	session       *sessions.Session
-	snippets      *psql.SnippetModel
+	snippets      interface {
+		Insert(string, string, []byte) (int, error)
+		Get(int) (*models.Snippet, error)
+		Latest() ([]*models.Snippet, error)
+	}
+	users         interface {
+		Insert(string, string, string) error
+		Authenticate(string, string) (int, error)
+		Get(int) (*models.User, error)
+	}
 	templateCache map[string]*template.Template
-	users         *psql.UserModel
 }
 
 func main() {

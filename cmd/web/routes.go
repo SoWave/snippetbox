@@ -25,6 +25,8 @@ func (app *application) routes() http.Handler {
 	mux.Post("/user/login", dynamic.ThenFunc(app.loginUser))
 	mux.Post("/user/logout", dynamic.Append(app.requireAuthenticatedUser).ThenFunc(app.logoutUser))
 
+	mux.Get("/ping", http.HandlerFunc(ping))
+
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
