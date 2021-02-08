@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -28,8 +29,8 @@ func TestShowSnippet(t *testing.T) {
 	defer ts.Close()
 
 	testCases := []struct {
-		name string
-		urlPath string
+		name     string
+		urlPath  string
 		wantCode int
 		wantBody []byte
 	}{
@@ -51,6 +52,56 @@ func TestShowSnippet(t *testing.T) {
 
 			if !bytes.Contains(body, tC.wantBody) {
 				t.Errorf("want body to contain %q", tC.wantBody)
+			}
+		})
+	}
+}
+
+func TestSignupUser(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+
+	_, _, body := ts.get(t, "/user/signup")
+	csrfToken := extractCSRFToken(t, body)
+
+	testCases := []struct {
+		desc         string
+		userName     string
+		userEmail    string
+		userPassword string
+		CSRFToken    string
+		wantCode     int
+		wantBody     []byte
+	}{
+		{"Valid submission", "Bob", "bob@example.com", "validPa$$word", csrfToken, http.StatusSeeOther, []byte("")},
+		{"Empty name", "", "bob@example.com", "validPa$$word", csrfToken, http.StatusOK, []byte("This field cannot be blank")},
+		{"Empty email", "Bob", "", "validPa$$word", csrfToken, http.StatusOK, []byte("This field cannot be blank")},
+		{"Empty password", "Bob", "bob@example.com", "", csrfToken, http.StatusOK, []byte("This field cannot be blank")},
+		{"Invalid email (incomplete domain)", "Bob", "bob@example.", "validPa$$word", csrfToken, http.StatusOK, []byte("This field is invalid")},
+		{"Invalid email (missing @)", "Bob", "bobexample.com", "validPa$$word", csrfToken, http.StatusOK, []byte("This field is invalid")},
+		{"Invalid email (missing local part)", "Bob", "@example.com", "validPa$$", csrfToken, http.StatusOK, []byte("This field is invalid")},
+		{"Short password", "Bob", "bob@example.com", "pa$$word", csrfToken, http.StatusOK, []byte("This field is too short (minimum is 10)")},
+		{"Duplicate email", "Bob", "dupe@example.com", "validPa$$word", csrfToken, http.StatusSeeOther, []byte("Address is already in use")},
+		{"Invalid CSRF Token", "", "", "", "wrongToken", http.StatusBadRequest, []byte("")},
+	}
+
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("name", tC.userName)
+			form.Add("email", tC.userEmail)
+			form.Add("password", tC.userPassword)
+			form.Add("csrf_token", tC.CSRFToken)
+
+			code, _, body := ts.post(t, "/user/signup", form)
+
+			if code != tC.wantCode {
+				t.Errorf("want %d; got %d", tC.wantCode, code)
+			}
+
+			if !bytes.Contains(body, tC.wantBody) {
+				t.Errorf("want body %s to contain %q", body, tC.wantBody)
 			}
 		})
 	}
